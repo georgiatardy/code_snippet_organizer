@@ -8,6 +8,8 @@ const session = require('express-session');
 const mongodb = require('mongodb');
 const passport = require('passport');
 
+const app = express();
+
 
 //===Require Mongoose and Bluebird===//
 const mongoose = require('mongoose');
@@ -16,7 +18,7 @@ const bluebird = require('bluebird');
 
 //===Models for users and code snippets===//
 const User = require('./models/users');
-const codeSnippet = require('./models/codeSnippet');
+const Snippets = require('./models/snippets');
 
 
 //===Tell Express to use Handlebars===//
@@ -38,7 +40,7 @@ app.use(
 //===Connect Passport to Express boilerplate===//
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(flash());
+app.use(expressFlash());
 
 
 //===BodyParser Middleware===//
@@ -76,7 +78,7 @@ const requireLogin = (request, response, next) => {
 
 
       //===Connect to Mongo via Mongoose===//
-      Mongoose
+      mongoose
         .connect('mongodb://localhost:27017/bcryptExample', {
           useMongoClient: true
         })
