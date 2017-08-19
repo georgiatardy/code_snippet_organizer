@@ -7,6 +7,7 @@ const handlebars = require('express-handlebars');
 const session = require('express-session');
 const mongodb = require('mongodb');
 const passport = require('passport');
+const expessValidator = require('express-validator');
 
 const app = express();
 
@@ -14,12 +15,21 @@ const app = express();
 //===Require Mongoose and Bluebird===//
 const mongoose = require('mongoose');
 const bluebird = require('bluebird');
+mongoose.Promise = bluebird;
 
 
 //===Models for users and code snippets===//
 const User = require('./models/users');
 const Snippets = require('./models/snippets');
 
+
+// ==== Calling Routes ==== //
+const loginRoutes = require('./routes/login');
+const snippetsRoutes = require('./routes/snippet');
+const searchRoutes = require('./routes/search');
+
+// === Connects to my code snippet data in Mongo === //
+let url = 'mongodb://localhost:27017/codeSnippets';
 
 //===Tell Express to use Handlebars===//
 app.engine('handlebars', handlebars());
@@ -36,6 +46,8 @@ app.use(
   })
 );
 
+app.use(express.static('public'));
+
 
 //===Connect Passport to Express boilerplate===//
 app.use(passport.initialize());
@@ -50,7 +62,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 
-//===Middleware that checks if user in in session, if not redirect to login===//
+//===   Endpoints  ===//
 const requireLogin = (request, response, next) => {
   if (request.user) {
     next();
@@ -59,27 +71,37 @@ const requireLogin = (request, response, next) => {
   }
 };
 
-// app.get('/', requireLogin, (req, res) => {
-//       console.log(session);
-//       codeSnippet.find({
-//           createdBy: request.user.username
-//         })
-//         .then((snippets) => {
-//           res.render('home', {
-//             user: req.user.snippets:snippets
-//           })
-//         });
+app.get('/', requireLogin, function(req, res) {
+  // TODO: Find the active template
+  Snippets.find({author: req.user.username})
+    .then((snippets) => {
+      res.render('home', {user: req.user, snippets: snippets})
+    })
+    .catch(err => res.send('Can not find snippets'));
+});
 
-      //===Log Out===//
-      app.get('/logout', function(req, res) {
-        req.logout();
-        res.redirect('/');
-      });
+app.get('/register', (req, res) => {
+  res.render('register');
+});
+
+app.post('/register', (req, res) => {
+  let user = new User(req.body);
+  user.provider = 'local';
+  user.setPassword(req.body.password);
+  user.save()
+
+    .then(() => res.redirect('/'))
+
+    .catch(err => console.log(err));
+});
+
+app.use('/', loginRoutes);
+app.use('/', snippetsRoutes);
+app.use('/', searchRoutes);
 
 
-      //===Connect to Mongo via Mongoose===//
       mongoose
-        .connect('mongodb://localhost:27017/bcryptExample', {
+        .connect('mongodb://localhost:27017/codeSnippets', {
           useMongoClient: true
         })
         .then(() => app.listen(3000, () => console.log('App is running!')));
