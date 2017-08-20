@@ -58,7 +58,7 @@ app.use(expressFlash());
 //===BodyParser Middleware===//
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-  extended: false
+  extended: true
 }));
 
 
