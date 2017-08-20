@@ -1,0 +1,40 @@
+body {
+  display: flex;
+  flex-flow: column nowrap;
+  font-size: 25px;
+  padding: 5px;
+  color: #789900;
+  align-items: center;
+}
+
+button {
+  color: white;
+  font-family: serif;
+  background-color: #789900;
+  padding: 10px;
+  margin: 5px 0;
+}
+
+.wrapper {
+  width: 75%;
+  margin: 50px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  align-self: center;
+  flex-flow: column nowrap;
+}
+
+// ==== Login Page ==== //
+
+.login {
+  background-color:#789900 ;
+  padding: 5%;
+}
+
+.login input {
+  width: 300px;
+  height: 26px;
+  padding-top: 5%;
+  margin: 5px 0;

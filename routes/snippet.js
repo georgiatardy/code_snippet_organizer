@@ -17,13 +17,15 @@ routes.use(requireLogin);
 routes.get('/snippets/add', (req, res) => {
 
 
-    if (req.query.id) {
-      Snippet.findById(req.query.id)
+  if (req.query.id) {
+    Snippet.findById(req.query.id)
 
-        .then(snippet => res.render('add', { snippet: snippet }));
-    } else {
-      res.render('add');
-    }
+      .then(snippet => res.render('add', {
+        snippet: snippet
+      }));
+  } else {
+    res.render('add');
+  }
 });
 
 routes.post('/snippets', (req, res) => {
@@ -34,17 +36,21 @@ routes.post('/snippets', (req, res) => {
   req.body.author = req.user.username;
   console.log(req.body);
 
-
-Snippet.findByIdAndUpdate(req.body._id, req.body, {upsert: true})
-  .then(() => res.redirect('/'))
-
-  .catch(err => {
-    console.log(err);
-    res.render('snippets', {
-      errors: err.errors,
-      item: req.body
-    });
+  req.body.tags = req.body.tags.filter((item) => {
+    return item !== ''
   });
+  Snippet.findByIdAndUpdate(req.body._id, req.body, {
+      upsert: true
+    })
+    .then(() => res.redirect('/'))
+
+    .catch(err => {
+      console.log(err);
+      res.render('snippets', {
+        errors: err.errors,
+        item: req.body
+      });
+    });
 });
 
 
